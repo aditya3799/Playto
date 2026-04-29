@@ -1,17 +1,24 @@
 #!/bin/bash
 set -e
 
+# Start Redis
 echo "Starting Redis server..."
 redis-server --daemonize yes
 
+# Navigate to the backend directory for Django/Celery operations
+cd /app/backend
+
 echo "Running migrations..."
-python backend/manage.py migrate --noinput
+python manage.py migrate --noinput
 
 echo "Collecting static files..."
-python backend/manage.py collectstatic --noinput
+python manage.py collectstatic --noinput
 
 echo "Starting Celery worker..."
-celery -A payout_engine worker --loglevel=info --chdir backend &
+# Set PYTHONPATH to current directory (backend) so payout_engine is found
+export PYTHONPATH=$PYTHONPATH:.
+celery -A payout_engine worker --loglevel=info &
 
 echo "Starting Gunicorn..."
-gunicorn payout_engine.wsgi:application --bind 0.0.0.0:8080 --chdir backend
+# Run Gunicorn with an increased timeout
+gunicorn payout_engine.wsgi:application --bind 0.0.0.0:8080 --timeout 120
