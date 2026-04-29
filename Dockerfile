@@ -29,7 +29,7 @@ RUN chmod +x bin/start.sh
 
 # Copy frontend build to a static directory where Django can find it
 RUN mkdir -p backend/static
-COPY --from=frontend-builder /app/frontend/dist ./backend/static/dist
+COPY --from=frontend-builder /app/frontend/dist ./backend/static/
 
 # Expose port
 EXPOSE 8080
