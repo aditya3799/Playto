@@ -17,5 +17,18 @@ services:
     ports:
       - "6379:6379"
 
+  web:
+    build: .
+    ports:
+      - "80:8080"
+    environment:
+      - DATABASE_URL=postgresql://playto_user:playto_password@db:5432/playto
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=False
+      - ALLOWED_HOSTS=*
+    depends_on:
+      - db
+      - redis
+
 volumes:
   postgres_data:
