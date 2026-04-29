@@ -15,7 +15,7 @@ celery -A payout_engine beat --loglevel=info &
 
 echo "Starting Celery worker..."
 export PYTHONPATH=$PYTHONPATH:.
-celery -A payout_engine worker --loglevel=info &
+celery -A payout_engine worker --loglevel=info --concurrency=1 &
 
 echo "Starting Gunicorn..."
 gunicorn payout_engine.wsgi:application --bind 0.0.0.0:8080 --timeout 120
