@@ -1,0 +1,38 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main  # Only trigger when code is pushed to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Executing remote ssh commands using ssh-key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            # Navigate to project folder or clone if it doesn't exist
+            if [ ! -d "~/Playto" ]; then
+              git clone https://github.com/aditya3799/Playto.git ~/Playto
+            fi
+            cd ~/Playto
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Restart containers with the new code
+            # -d runs it in background, --build ensures the Dockerfile is re-compiled
+            docker compose up -d --build
+            
+            # Optional: Clean up old images to save space on your free tier
+            docker image prune -f
